@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IOL Calculator for Eyes with Prior Myopic LASIK/PRK: ISS method</title>
+<style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .section {
+      flex: 1;
+      min-width: 320px;
+    }
+
+    .form-wrapper {
+      border: 1px solid black;
+      border-radius: 8px;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    .form-block {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .measurements {
+      background-color: #f0f0f0;
+    }
+
+    .pentacam {
+      background-color: #dcdcdc;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 20px;
+      align-items: center;
+    }
+
+    label {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      width: 66%;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .result-table th,
+    .result-table td {
+      border: 1px solid #ffffff;
+      padding: 6px 10px;
+      text-align: center;
+      width: 50%;
+    }
+
+    .highlight {
+      background-color: #ffe5b4;
+    }
+  
+      background-color: #5D7B9D;
+      color: white;
+    }
+      background-color: #B0C4DE;
+      color: black;
+      font-weight: bold;
+    }
+    
+.result-table thead tr { background-color: #5D7B9D; color: white; }
+.result-table thead tr { background-color: #5D7B9D; color: white; }
+.result-table thead tr { background-color: #5D7B9D; color: white; }
+.result-table tr:nth-child(2) { background-color: #F7F6F3; color: black; }
+.result-table tr:nth-child(3) { background-color: #FFFFFF; color: black; }
+.result-table tr:nth-child(4) td { background-color: #B0C4DE; color: black; font-weight: bold; }
+.result-table tr:nth-child(5) { background-color: #F7F6F3; color: black; }
+.result-table tr:nth-child(6) { background-color: #FFFFFF; color: black; }
+.result-table tr:nth-child(7) { background-color: #F7F6F3; color: black; }
+.result-table tr:nth-child(8) { background-color: #FFFFFF; color: black; }
+#print-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
+@media print {
+  body {
+    width: 210mm;
+    height: 297mm;
+    margin: 10mm;
+    font-size: 11pt;
+    overflow: hidden;
+  }
+  .no-print { display: none !important; }
+  .container { flex-wrap: nowrap; gap: 20px; }
+  .section { min-width: 48%; }
+  .result-table { page-break-inside: avoid; }
+}</style>
+</head>
+<body>
+<div class="no-print" id="print-button" onclick="window.print()">
+<img alt="Print" src="printer_icon.png" style="height:40px;" title="印刷／PDF出力"/>
+</div>
+<h1 style="font-size: 20px; margin-bottom: 20px;">IOL Calculator for Eyes with Prior Myopic LASIK/PRK: ISS method</h1>
+<div class="container">
+<!-- OD Section -->
+<div class="section">
+<h2>OD</h2>
+<div class="form-wrapper">
+<form oninput="calculate('OD')">
+<div class="form-block measurements">
+<div class="section-title">Measurements &amp; Constant:</div>
+<div class="form-grid">
+<label for="OD_B110">K1(D):</label><input id="OD_B110" step="0.01" type="number"/>
+<label for="OD_B111">K2(D):</label><input id="OD_B111" step="0.01" type="number"/>
+<label for="OD_B112">Axial Length(mm):</label><input id="OD_B112" step="0.01" type="number"/>
+<label for="OD_B113">A-constant:</label><input id="OD_B113" step="0.01" type="number"/>
+<label for="OD_B114">Target Refraction(D):</label><input id="OD_B114" step="0.01" type="number"/>
+</div>
+</div>
+<div class="form-block pentacam">
+<div class="section-title">Pentacam:</div>
+<div class="form-grid">
+<label for="OD_E7">Rm(ant.)(mm):</label><input id="OD_E7" step="0.01" type="number"/>
+<label for="OD_E8">Rm(post.)(mm):</label><input id="OD_E8" step="0.01" type="number"/>
+</div>
+</div>
+</form>
+</div>
+<table class="result-table">
+<thead>
+<tr><th>IOL power(D)</th><th>Ref(D)</th></tr>
+</thead>
+<tbody id="OD_result_body"></tbody>
+</table>
+</div>
+<!-- OS Section -->
+<div class="section">
+<h2>OS</h2>
+<div class="form-wrapper">
+<form oninput="calculate('OS')">
+<div class="form-block measurements">
+<div class="section-title">Measurements &amp; Constant:</div>
+<div class="form-grid">
+<label for="OS_B110">K1(D):</label><input id="OS_B110" step="0.01" type="number"/>
+<label for="OS_B111">K2(D):</label><input id="OS_B111" step="0.01" type="number"/>
+<label for="OS_B112">Axial Length(mm):</label><input id="OS_B112" step="0.01" type="number"/>
+<label for="OS_B113">A-constant:</label><input id="OS_B113" step="0.01" type="number"/>
+<label for="OS_B114">Target Refraction(D):</label><input id="OS_B114" step="0.01" type="number"/>
+</div>
+</div>
+<div class="form-block pentacam">
+<div class="section-title">Pentacam:</div>
+<div class="form-grid">
+<label for="OS_E7">Rm(ant.)(mm):</label><input id="OS_E7" step="0.01" type="number"/>
+<label for="OS_E8">Rm(post.)(mm):</label><input id="OS_E8" step="0.01" type="number"/>
+</div>
+</div>
+</form>
+</div>
+<table class="result-table">
+<thead>
+<tr><th>IOL power(D)</th><th>Ref(D)</th></tr>
+</thead>
+<tbody id="OS_result_body"></tbody>
+</table>
+</div>
+</div>
+<script>
+    function calculate(eye) {
+      const get = id => parseFloat(document.getElementById(`${eye}_${id}`).value);
+      const B110 = get("B110"), B111 = get("B111"), B112 = get("B112"),
+            B113 = get("B113"), B114 = get("B114"), E7 = get("E7"), E8 = get("E8");
+      if ([B110, B111, B112, B113, B114, E7, E8].some(isNaN)) return;
+
+      const B117 = 43.86;
+      const B116 = (B110 + B111) / 2;
+      const B119 = 337.5 / B116;
+      const B122 = B112;
+      const B121 = 0.65696 - 0.02029 * B122;
+      const B120 = B122 + B121;
+      const B129 = B122 <= 24.2 ? B122 : -3.446 + 1.716 * B122 - 0.0237 * B122 ** 2;
+      const B128 = -5.41 + 0.58412 * B129 + 0.098 * B116;
+      const innerRootB = B119 ** 2 - (B128 ** 2) / 4;
+      const B127 = innerRootB < 0 ? B119 : B119 - Math.sqrt(innerRootB);
+      const B125 = 0.62467 * B113 - 68.747;
+      const B124 = B125 - 3.336;
+      const B123 = B127 + B124;
+
+      const C119 = 337.5 / B117;
+      const C128 = -5.41 + 0.58412 * B129 + 0.098 * B117;
+      const innerRootC = C119 ** 2 - (C128 ** 2) / 4;
+      const C127 = innerRootC < 0 ? C119 : C119 - Math.sqrt(innerRootC);
+      const C123 = C127 + B124;
+
+      const E9 = E7 / E8;
+      const E10 = 3.28 * E9 - 4;
+
+      const B132 = 12;
+      const B133 = 1.336;
+      const B135 = 0.333;
+
+      let bestPower = 20;
+      let minDiff = Infinity;
+      for (let i = 5; i <= 35; i += 0.01) {
+        const B21 = i;
+        const num = 1000 * B133 * (B133 * B119 - B135 * B120) -
+                    B21 * (B120 - C123) * (B133 * B119 - B135 * C123);
+        const den = B133 * (B132 * (B133 * B119 - B135 * B120) + B120 * B119) -
+                    0.001 * B21 * (B120 - C123) *
+                    (B132 * (B133 * B119 - B135 * C123) + C123 * B119);
+        const ref = num / den + E10;
+        const diff = Math.abs(ref - B114);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestPower = i;
+        }
+      }
+
+      bestPower = Math.round(bestPower * 2) / 2;
+
+      const resultBody = document.getElementById(`${eye}_result_body`);
+      resultBody.innerHTML = "";
+
+      for (let j = 3; j >= -3; j--) {
+        const power = bestPower + j * 0.5;
+        const B21 = power;
+        const numerator = 1000 * B133 * (B133 * B119 - B135 * B120) -
+                          B21 * (B120 - C123) * (B133 * B119 - B135 * C123);
+        const denominator = B133 * (B132 * (B133 * B119 - B135 * B120) + B120 * B119) -
+                            0.001 * B21 * (B120 - C123) *
+                            (B132 * (B133 * B119 - B135 * C123) + C123 * B119);
+        const ref = numerator / denominator + E10;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${power.toFixed(1)}</td><td>${ref.toFixed(2)}</td>`;
+        if (j === 0) row.classList.add("highlight");
+        resultBody.appendChild(row);
+      }
+    }
+  </script>
+</body>
+</html>
