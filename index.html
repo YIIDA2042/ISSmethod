@@ -126,11 +126,16 @@
 <div class="no-print" id="print-button" onclick="window.print()">
 <img alt="Print" src="printer_icon.png" style="height:40px;" title="印刷／PDF出力"/>
 </div>
-<h1 style="font-size: 20px; margin-bottom: 4px; line-height: 1.2;">IOL Calculator for Eyes with Prior Myopic LASIK/PRK: ISS method</h1><div style="font-size: 12pt; margin-top: 4px; margin-bottom: 8px; line-height: 1.2;">(Your data will not be saved. Please print a copy for your record.)</div>
+<h1 style="font-size: 20px; margin-bottom: 4px; line-height: 1.2;">IOL Calculator for Eyes with Prior Myopic LASIK/PRK: ISS method</h1>
+<div style="font-size: 12pt; margin-top: 4px; margin-bottom: 8px; line-height: 1.2;">(Your data will not be saved. Please print a copy for your record.)</div><div style="background-color: #DCEAF7; border-radius: 10px; padding: 10px; margin-top: 20px; margin-bottom: 0px;">
+<strong>The device used for corneal topography analysis:</strong>
+<label style="margin-left: 10px;"><input checked="" name="device_select" onchange="updateDeviceLabel()" type="radio" value="Pentacam"/> Pentacam</label>
+<label style="margin-left: 15px;"><input name="device_select" onchange="updateDeviceLabel()" type="radio" value="CASIA2"/> CASIA2</label>
+</div><br/>
 <div class="container">
 <!-- OD Section -->
 <div class="section">
-<h2>OD</h2>
+<h2>Right Eye (OD):</h2>
 <div class="form-wrapper">
 <form oninput="calculate('OD')">
 <div class="form-block measurements">
@@ -144,7 +149,10 @@
 </div>
 </div>
 <div class="form-block pentacam">
-<div class="section-title">Pentacam:</div>
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><div class="section-title" id="device-label">Pentacam:</div><span id="casia-options" style="display:none; margin-left: 10px;">
+<label><input checked="" name="casia_unit" type="radio" value="mm"/> mm</label>
+<label style="margin-left: 10px;"><input name="casia_unit" type="radio" value="D"/> D</label>
+</span></div>
 <div class="form-grid">
 <label for="OD_E7">Rm(ant.)(mm):</label><input id="OD_E7" step="0.01" type="number"/>
 <label for="OD_E8">Rm(post.)(mm):</label><input id="OD_E8" step="0.01" type="number"/>
@@ -161,7 +169,7 @@
 </div>
 <!-- OS Section -->
 <div class="section">
-<h2>OS</h2>
+<h2>Left Eye (OS):</h2>
 <div class="form-wrapper">
 <form oninput="calculate('OS')">
 <div class="form-block measurements">
@@ -175,7 +183,10 @@
 </div>
 </div>
 <div class="form-block pentacam">
-<div class="section-title">Pentacam:</div>
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><div class="section-title" id="device-label-os">Pentacam:</div><span id="casia-options-os" style="display:none; margin-left: 10px;">
+<label><input checked="" name="casia_unit_os" type="radio" value="mm"/> mm</label>
+<label style="margin-left: 10px;"><input name="casia_unit_os" type="radio" value="D"/> D</label>
+</span></div>
 <div class="form-grid">
 <label for="OS_E7">Rm(ant.)(mm):</label><input id="OS_E7" step="0.01" type="number"/>
 <label for="OS_E8">Rm(post.)(mm):</label><input id="OS_E8" step="0.01" type="number"/>
@@ -195,7 +206,23 @@
     function calculate(eye) {
       const get = id => parseFloat(document.getElementById(`${eye}_${id}`).value);
       const B110 = get("B110"), B111 = get("B111"), B112 = get("B112"),
-            B113 = get("B113"), B114 = get("B114"), E7 = get("E7"), E8 = get("E8");
+            B113 = get("B113"), B114 = get("B114");
+
+      const E27 = get("E7");
+      const E28 = get("E8");
+      let E7 = E27;
+      let E8 = E28;
+
+      const deviceSelected = document.querySelector('input[name="device_select"]:checked')?.value;
+      const unitSelected = eye === "OD"
+        ? document.querySelector('input[name="casia_unit"]:checked')?.value
+        : document.querySelector('input[name="casia_unit_os"]:checked')?.value;
+
+      if (deviceSelected === "CASIA2" && unitSelected === "D") {
+        if (!isNaN(E27)) E7 = 337.5 / E27;
+        if (!isNaN(E28)) E8 = (1336 - 1376) / E28;
+      }
+
       if ([B110, B111, B112, B113, B114, E7, E8].some(isNaN)) return;
 
       const B117 = 43.86;
@@ -263,6 +290,63 @@
         resultBody.appendChild(row);
       }
     }
-  </script>
+  
+
+
+
+function updateDeviceLabel() {
+  const selected = document.querySelector('input[name="device_select"]:checked').value;
+
+  const labelOD = document.getElementById("device-label");
+  if (labelOD) labelOD.textContent = selected + ":";
+
+  const labelOS = document.getElementById("device-label-os");
+  if (labelOS) labelOS.textContent = selected + ":";
+
+  const optionsOD = document.getElementById("casia-options");
+  if (optionsOD) optionsOD.style.display = selected === "CASIA2" ? "inline" : "none";
+
+  const optionsOS = document.getElementById("casia-options-os");
+  if (optionsOS) optionsOS.style.display = selected === "CASIA2" ? "inline" : "none";
+
+  // 単位取得関数（eye = "OD" or "OS"）
+  function getUnit(eye) {
+    const name = eye === "OD" ? "casia_unit" : "casia_unit_os";
+    const unitInput = document.querySelector('input[name="' + name + '"]:checked');
+    return unitInput ? unitInput.value : "mm";
+  }
+
+  // ラベル切り替え関数
+  function setLabels(eye) {
+    const ant = document.querySelector("label[for='" + eye + "_E7']");
+    const post = document.querySelector("label[for='" + eye + "_E8']");
+    const unit = getUnit(eye);
+    if (selected === "CASIA2") {
+      if (ant) ant.textContent = "Keratometric AveK(" + unit + "):";
+      if (post) post.textContent = "Posterior AveK(" + unit + "):";
+    } else {
+      if (ant) ant.textContent = "Rm(ant.)(mm):";
+      if (post) post.textContent = "Rm(post.)(mm):";
+    }
+  }
+
+  setLabels("OD");
+  setLabels("OS");
+}
+
+// ラジオボタンにイベントを設定（OD/OS別）
+document.addEventListener("DOMContentLoaded", () => {
+  const unitRadios = document.querySelectorAll('input[name="casia_unit"], input[name="casia_unit_os"]');
+  unitRadios.forEach(radio => {
+    radio.addEventListener("change", updateDeviceLabel);
+  });
+  const deviceRadios = document.querySelectorAll('input[name="device_select"]');
+  deviceRadios.forEach(radio => {
+    radio.addEventListener("change", updateDeviceLabel);
+  });
+  updateDeviceLabel();
+});
+
+</script>
 </body>
 </html>
