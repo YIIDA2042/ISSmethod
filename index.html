@@ -127,7 +127,20 @@
 <img alt="Print" src="printer_icon.png" style="height:40px;" title="印刷／PDF出力"/>
 </div>
 <h1 style="font-size: 20px; margin-bottom: 4px; line-height: 1.2;">IOL Calculator for Eyes with Prior Myopic LASIK/PRK: ISS method</h1>
-<div style="font-size: 12pt; margin-top: 4px; margin-bottom: 8px; line-height: 1.2;">(Your data will not be saved. Please print a copy for your record.)</div><div style="background-color: #DCEAF7; border-radius: 10px; padding: 10px; margin-top: 20px; margin-bottom: 0px;">
+<div style="font-size: 12pt; margin-top: 4px; margin-bottom: 8px; line-height: 1.2;">(Your data will not be saved. Please print a copy for your record.)</div>
+<div style="margin-top: 32px; margin-bottom: 0px; font-size: 1.1em;">
+<div style="margin-bottom: 12px;">
+<label for="patient-id" style="display: inline-block; width: 130px;">Patient ID:</label>
+<input id="patient-id" style="width: 300px;" type="text"/>
+</div>
+<div>
+<label for="patient-name" style="display: inline-block; width: 130px;">Patient Name:</label>
+<input id="patient-name" style="width: 300px;" type="text"/>
+</div>
+</div>
+
+
+<div style="background-color: #DCEAF7; border-radius: 10px; padding: 10px; margin-top: 20px; margin-bottom: 0px;">
 <strong>The device used for corneal topography analysis:</strong>
 <label style="margin-left: 10px;"><input checked="" name="device_select" onchange="updateDeviceLabel()" type="radio" value="Pentacam"/> Pentacam</label>
 <label style="margin-left: 15px;"><input name="device_select" onchange="updateDeviceLabel()" type="radio" value="CASIA2"/> CASIA2</label>
